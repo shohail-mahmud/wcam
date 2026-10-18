@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gesture Overlay — Hand Tracking</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Gesture<span>Overlay</span></h1>
+    <p class="privacy">All processing happens on your device. No video is uploaded.</p>
+  </header>
+
+  <main>
+    <div id="stage" class="stage">
+      <video id="video" playsinline muted></video>
+      <canvas id="debug"></canvas>
+      <div id="overlay" class="overlay"><img id="overlayImg" alt="" /></div>
+      <div id="placeholder" class="placeholder">Press <b>Start Camera</b> to begin</div>
+      <div id="hud" class="hud">
+        <div><span>Status</span><b id="hudStatus">Idle</b></div>
+        <div><span>FPS</span><b id="hudFps">–</b></div>
+        <div><span>Raw</span><b id="hudRaw">–</b></div>
+        <div><span>Active</span><b id="hudGesture">NONE</b></div>
+        <div><span>Held</span><b id="hudHeld">0 ms</b></div>
+        <div><span>Pinch</span><b id="hudPinch">–</b></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="primary">Start Camera</button>
+      <button id="stopBtn" disabled>Stop Camera</button>
+      <button id="debugBtn">Debug: ON</button>
+    </div>
+
+    <ul class="legend">
+      <li>✋ Open palm → laugh</li>
+      <li>✊ Fist → pray</li>
+      <li>☝️ Point → shush</li>
+      <li>👌 OK sign → ok</li>
+      <li>🤏 Pinch → scheme (zooms)</li>
+      <li>✌️ Peace / 👍 Thumbs up → detected, no image yet</li>
+    </ul>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
