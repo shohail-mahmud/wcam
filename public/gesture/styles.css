@@ -1,0 +1,45 @@
+:root {
+  --bg: #0b1020; --panel: #121a33; --line: #26315a; --text: #e8ecff;
+  --muted: #8d97c2; --accent: #3fa9ff; --accent-ink: #04121f;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; background: radial-gradient(circle at 50% -20%, #1b2a5c, var(--bg) 60%);
+  color: var(--text); font-family: "Segoe UI", system-ui, sans-serif;
+}
+header { text-align: center; padding: 24px 16px 8px; }
+h1 { margin: 0; font-size: 28px; letter-spacing: -0.5px; }
+h1 span { color: var(--accent); }
+.privacy { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+main { max-width: 960px; margin: 0 auto; padding: 16px; }
+.stage {
+  position: relative; width: 100%; aspect-ratio: 4 / 3; background: #000;
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+}
+video, canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+canvas { pointer-events: none; }
+.placeholder { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+.overlay { position: absolute; inset: 0; pointer-events: none; }
+.overlay img {
+  position: absolute; opacity: 0; transform: translate(-50%, -50%) scale(0.8);
+  transition: opacity 220ms ease, transform 260ms cubic-bezier(.2,1.4,.4,1);
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,.5));
+}
+.overlay img.show { opacity: 1; }
+.hud {
+  position: absolute; top: 12px; left: 12px; background: rgba(8,12,28,.75); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: 12px ui-monospace, monospace;
+  display: grid; gap: 3px; min-width: 190px;
+}
+.hud div { display: flex; justify-content: space-between; gap: 12px; }
+.hud span { color: var(--muted); }
+.hud .err { color: #ff7a7a; }
+.controls { display: flex; gap: 10px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+button {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 18px; font-size: 14px; cursor: pointer;
+}
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: .4; cursor: not-allowed; }
+.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; color: var(--muted); font-size: 13px; }
+.legend li { background: var(--panel); border: 1px solid var(--line); padding: 6px 10px; border-radius: 999px; }
