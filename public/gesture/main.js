@@ -26,7 +26,8 @@ const END_PINCH = 0.08;
 const HOLD_MS = 200;
 const RELEASE_MS = 150;
 const COOLDOWN_MS = 400;
-const FACE_MEMORY_MS = 600; // keep last face while a hand covers it
+const FACE_MEMORY_MS = 1200;
+const VOTE_FRAMES = 8; // majority vote window for raw gestures // keep last face while a hand covers it
 const PRIORITY = ["PRAY", "SHUSH", "LAUGH", "OK_SIGN", "PINCH", "POINT", "PEACE", "THUMBS_UP", "FIST", "OPEN_PALM"];
 
 // ---------- DOM ----------
@@ -124,24 +125,43 @@ function faceInfo(f) {
 function faceGestures(hands, face, matches) {
   if (!face) return;
   const W = face.width;
+  const palmC = (lm) => {
+    const ids = [0, 5, 9, 13, 17];
+    return { x: ids.reduce((a, i) => a + lm[i].x, 0) / 5, y: ids.reduce((a, i) => a + lm[i].y, 0) / 5 };
+  };
+  const handLen = (lm) => dist(lm[0], lm[9]) || 1e-3;
+  const palmWidth = (lm) => dist(lm[5], lm[17]);
+  const pointsUp = (lm) => lm[0].y - lm[12].y > 0.6 * handLen(lm); // fingertips well above wrist
+
   for (const lm of hands) {
     const s = fingerStates(lm);
-    const up = ["index", "middle", "ring", "pinky"].filter((f) => s[f] !== "curled").length;
+    const notCurled = ["index", "middle", "ring", "pinky"].filter((f) => s[f] !== "curled").length;
+    const p = palmC(lm);
     // SHUSH: index up, others curled, index tip on lips
     if (s.index !== "curled" && s.middle === "curled" && s.ring === "curled" && s.pinky === "curled" &&
-        dist(lm[8], face.mouth) < 0.35 * W) matches.add("SHUSH");
-    // LAUGH: open-ish hand whose palm covers the mouth
-    const palm = { x: (lm[0].x + lm[9].x) / 2, y: (lm[0].y + lm[9].y) / 2 };
-    if (up >= 3 && (dist(lm[9], face.mouth) < 0.45 * W || dist(palm, face.mouth) < 0.45 * W))
-      matches.add("LAUGH");
+        dist(lm[8], face.mouth) < 0.4 * W) matches.add("SHUSH");
+    // LAUGH: open hand, palm facing camera (wide), covering mouth region, not pointing straight up
+    const nearMouth = dist(p, face.mouth) < 0.6 * W || dist(lm[9], face.mouth) < 0.55 * W;
+    const wide = palmWidth(lm) > 0.45 * handLen(lm);
+    if (notCurled >= 2 && nearMouth && wide && !(pointsUp(lm) && !wide)) matches.add("LAUGH");
   }
-  // PRAY: two hands, palms pressed together, in front of chin / below nose
+
+  const inPrayZone = (pt) =>
+    Math.abs(pt.x - face.cx) < 0.7 * W && pt.y > face.nose.y - 0.3 * W && pt.y < face.chin.y + 1.5 * W;
+
   if (hands.length === 2) {
+    // PRAY: two hands, palms pressed together, fingers up, in front of chin
     const [a, b] = hands;
-    const mid = { x: (a[8].x + b[8].x) / 2, y: (a[8].y + b[8].y) / 2 };
-    if (dist(a[8], b[8]) < 0.45 * W && dist(a[9], b[9]) < 0.6 * W &&
-        Math.abs(mid.x - face.cx) < 0.6 * W &&
-        mid.y > face.nose.y - 0.4 * W && mid.y < face.chin.y + 1.2 * W) matches.add("PRAY");
+    const mid = { x: (a[9].x + b[9].x) / 2, y: (a[9].y + b[9].y) / 2 };
+    const together = dist(palmC(a), palmC(b)) < 0.7 * W && dist(a[8], b[8]) < 0.6 * W;
+    if (together && inPrayZone(mid) && (pointsUp(a) || pointsUp(b))) matches.add("PRAY");
+  } else if (hands.length === 1) {
+    // Pressed palms often merge into ONE detected hand: sideways (narrow) hand, fingers up, in front of chin
+    const lm = hands[0];
+    const s = fingerStates(lm);
+    const notCurled = ["index", "middle", "ring", "pinky"].filter((f) => s[f] !== "curled").length;
+    const narrow = palmWidth(lm) < 0.45 * handLen(lm);
+    if (notCurled >= 3 && narrow && pointsUp(lm) && inPrayZone(palmC(lm))) matches.add("PRAY");
   }
 }
 
@@ -178,7 +198,6 @@ function classify(lm, hands = [lm], face = null) {
     matches.add("OPEN_PALM");
 
   faceGestures(hands, face, matches);
-  if (hands.length === 2 && matches.has("PRAY")) matches.delete("FIST");
   const raw = PRIORITY.find((g) => matches.has(g)) || "NONE";
   return { raw, pinchDist };
 }
@@ -195,7 +214,7 @@ function updateState(raw, now) {
   }
   // Activate after HOLD_MS + cooldown
   if (
-    sm.candidate !== "NONE" && sm.candidate !== sm.active && sm.active === "NONE" &&
+    sm.candidate !== "NONE" && sm.candidate !== sm.active &&
     now - sm.candidateSince >= HOLD_MS && now - sm.lastChange >= COOLDOWN_MS
   ) {
     sm.active = sm.candidate; sm.activeSince = now; sm.lastSeenActive = now; sm.lastChange = now;
@@ -204,6 +223,7 @@ function updateState(raw, now) {
 }
 
 // ---------- Overlay ----------
+const voteBuf = [];
 let shownGesture = "NONE", currentZoom = 1;
 function placeOverlay(cfg, lm, pinchDist) {
   const W = canvas.clientWidth, H = canvas.clientHeight;
@@ -279,7 +299,10 @@ function loop() {
     pinchActive = false;
   }
 
-  const active = updateState(raw, now);
+  voteBuf.push(raw); if (voteBuf.length > VOTE_FRAMES) voteBuf.shift();
+  const counts = {}; for (const g of voteBuf) counts[g] = (counts[g] || 0) + 1;
+  const voted = Object.entries(counts).sort((x, y) => y[1] - x[1])[0][0];
+  const active = updateState(voted, now);
   renderOverlay(active, lm, pinchDist);
 
   fpsFrames++;
