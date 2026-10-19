@@ -206,7 +206,7 @@ function stop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   resetRecognition(); lastFace = null; lastFaceAt = -Infinity; renderOverlay("NONE");
   hud.raw.textContent = "–"; hud.face.textContent = "–"; hud.held.textContent = "0 ms"; hud.pinch.textContent = "–";
-  placeholder.style.display = "grid";
+  placeholder.style.display = "flex";
   startBtn.disabled = false; stopBtn.disabled = true;
   setStatus("Stopped"); hud.fps.textContent = "–"; hud.gesture.textContent = "NONE";
 }
