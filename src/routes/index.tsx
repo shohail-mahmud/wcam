@@ -20,6 +20,7 @@ function Index() {
       src="/gesture/index.html"
       title="Gesture Overlay"
       allow="camera"
+      allowFullScreen
       className="block h-screen w-full border-0"
     />
   );

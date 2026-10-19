@@ -27,20 +27,28 @@
         <div><span>Pinch</span><b id="hudPinch">–</b></div>
         <div><span>Face</span><b id="hudFace">–</b></div>
       </div>
+      <button id="fullscreenBtn" class="fullscreen-btn" aria-label="Camera fullscreen" title="Camera fullscreen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" /></svg>
+      </button>
     </div>
 
     <div class="controls">
       <button id="startBtn" class="primary">Start Camera</button>
       <button id="stopBtn" disabled>Stop Camera</button>
-      <button id="debugBtn">Debug: ON</button>
     </div>
+    <fieldset class="debug-panel">
+      <legend>Debug</legend>
+      <label class="debug-switch"><span>Hand landmarks</span><input id="handDebug" type="checkbox" role="switch" checked /><span class="switch-track" aria-hidden="true"></span></label>
+      <label class="debug-switch"><span>Face landmarks</span><input id="faceDebug" type="checkbox" role="switch" /><span class="switch-track" aria-hidden="true"></span></label>
+    </fieldset>
 
     <ul class="legend">
       <li>🤭 Open hand over mouth → laugh (face)</li>
       <li>🙏 Both palms together at chin → pray (face)</li>
       <li>🤫 Index finger on lips → shush (face)</li>
       <li>👌 OK sign → ok</li>
-      <li>🤏 Pinch → scheme (zooms)</li>
+      <li>☝️ Point → pointing</li>
+      <li>👍 Thumbs up → thumbs up</li>
     </ul>
   </main>
 
