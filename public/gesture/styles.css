@@ -1,6 +1,8 @@
 :root {
   --bg: #0b1020; --panel: #121a33; --line: #26315a; --text: #e8ecff;
   --muted: #8d97c2; --accent: #3fa9ff; --accent-ink: #04121f;
+  --camera: #000; --hud-bg: rgba(8,12,28,.75); --error: #ff7a7a;
+  --overlay-shadow: drop-shadow(0 10px 30px rgba(0,0,0,.5));
 }
 * { box-sizing: border-box; }
 body {
@@ -8,38 +10,51 @@ body {
   color: var(--text); font-family: "Segoe UI", system-ui, sans-serif;
 }
 header { text-align: center; padding: 24px 16px 8px; }
-h1 { margin: 0; font-size: 28px; letter-spacing: -0.5px; }
+h1 { margin: 0; font-size: 28px; letter-spacing: 0; }
 h1 span { color: var(--accent); }
 .privacy { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 main { max-width: 960px; margin: 0 auto; padding: 16px; }
 .stage {
-  position: relative; width: 100%; aspect-ratio: 4 / 3; background: #000;
-  border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+  position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--camera);
+  border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
 }
-video, canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+video, canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); }
 canvas { pointer-events: none; }
 .placeholder { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
 .overlay { position: absolute; inset: 0; pointer-events: none; }
 .overlay img {
   position: absolute; opacity: 0; transform: translate(-50%, -50%) scale(0.8);
   transition: opacity 220ms ease, transform 260ms cubic-bezier(.2,1.4,.4,1);
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,.5));
+  filter: var(--overlay-shadow);
 }
 .overlay img.show { opacity: 1; }
 .hud {
-  position: absolute; top: 12px; left: 12px; background: rgba(8,12,28,.75); backdrop-filter: blur(6px);
-  border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: 12px ui-monospace, monospace;
+  position: absolute; top: 12px; left: 12px; background: var(--hud-bg); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: 12px ui-monospace, monospace;
   display: grid; gap: 3px; min-width: 190px;
 }
 .hud div { display: flex; justify-content: space-between; gap: 12px; }
 .hud span { color: var(--muted); }
-.hud .err { color: #ff7a7a; }
+.hud .err { color: var(--error); }
 .controls { display: flex; gap: 10px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
 button {
-  background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 10px;
+  background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px;
   padding: 10px 18px; font-size: 14px; cursor: pointer;
 }
 button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
 button:disabled { opacity: .4; cursor: not-allowed; }
 .legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; color: var(--muted); font-size: 13px; }
 .legend li { background: var(--panel); border: 1px solid var(--line); padding: 6px 10px; border-radius: 999px; }
+.fullscreen-btn { position: absolute; bottom: 12px; right: 12px; width: 40px; height: 40px; display: grid; place-items: center; padding: 0; background: var(--hud-bg); }
+.stage:fullscreen { width: 100vw; height: 100vh; aspect-ratio: auto; border: 0; border-radius: 0; }
+.debug-panel { margin: 20px 0; padding: 16px 0; border: 0; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 20px 40px; }
+.debug-panel legend { color: var(--muted); font-size: 12px; padding-right: 12px; }
+.debug-switch { display: flex; align-items: center; gap: 16px; position: relative; font-size: 14px; cursor: pointer; }
+.debug-switch input { position: absolute; width: 40px; height: 24px; right: 0; margin: 0; opacity: 0; cursor: pointer; }
+.switch-track { width: 40px; height: 24px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); padding: 3px; pointer-events: none; }
+.switch-track::before { content: ''; display: block; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: transform 150ms ease; }
+.debug-switch input:checked + .switch-track { background: var(--accent); }
+.debug-switch input:checked + .switch-track::before { transform: translateX(16px); background: var(--accent-ink); }
+.debug-switch input:focus-visible + .switch-track, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (max-width: 600px) { .stage { aspect-ratio: 4 / 3; } .hud { min-width: 150px; font-size: 10px; padding: 6px 8px; top: 8px; left: 8px; } }
+@media (prefers-reduced-motion: reduce) { .overlay img, .switch-track::before { transition: none; } }
