@@ -6,7 +6,7 @@ function hand(extended: number[] = []) {
   const lm = Array.from({ length: 21 }, () => point(0.5, 0.6));
   lm[0] = point(0.5, 0.75);
   lm[2] = point(0.36, 0.65); lm[3] = point(0.32, 0.62); lm[4] = point(0.34, 0.66);
-  for (const [base, x] of [[5, 0.42], [9, 0.48], [13, 0.54], [17, 0.6]]) {
+  for (const [base, x] of [[5, 0.42], [9, 0.48], [13, 0.54], [17, 0.6]] as const) {
     lm[base] = point(x, 0.6);
     lm[base + 1] = point(x, 0.52);
     lm[base + 2] = point(x, extended.includes(base) ? 0.45 : 0.56);
