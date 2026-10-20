@@ -17,9 +17,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <iframe
-      src="/gesture/index.html"
+      src="/gesture/index.html?v=3"
       title="Gesture Overlay"
-      allow="camera"
+      allow="camera; fullscreen"
       allowFullScreen
       className="block h-screen w-full border-0"
     />
