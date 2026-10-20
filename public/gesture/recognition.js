@@ -34,7 +34,7 @@ function fingerStates(lm) {
 }
 
 // Face reference points from FaceLandmarker (478 pts)
-function faceInfo(f) {
+export function faceInfo(f) {
   const mouth = { x: (f[13].x + f[14].x) / 2, y: (f[13].y + f[14].y) / 2 };
   const width = dist(f[234], f[454]) || 0.2; // cheek to cheek
   return { mouth, width, nose: f[1], chin: f[152], cx: (f[234].x + f[454].x) / 2 };
