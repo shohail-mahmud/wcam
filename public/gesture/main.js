@@ -6,7 +6,7 @@ import {
   DrawingUtils,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
 
-import { classify, sm, updateState, resetRecognition, clearPinch, DEBUG_DEFAULTS } from "./recognition.js";
+import { classify, sm, updateState, resetRecognition, clearPinch, faceInfo, DEBUG_DEFAULTS } from "./recognition.js";
 
 // ---------- Mapping (edit here) ----------
 // position: center | top-left | top-right | bottom-left | bottom-right | hand
